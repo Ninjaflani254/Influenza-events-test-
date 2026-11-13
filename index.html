@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influenza Events Kenya | Premium Experiences</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#101820',
+                        secondary: '#222B35',
+                        accent: '#E9A23B',
+                        lightbg: '#F3F4F5',
+                        textmuted: '#6B7280',
+                    },
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel (for JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F5; }
+        h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Montserrat', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hero-bg { background-image: linear-gradient(rgba(16, 24, 32, 0.75), rgba(16, 24, 32, 0.75)), url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80'); }
+        .masonry { column-count: 1; column-gap: 1.5rem; }
+        @media (min-width: 768px) { .masonry { column-count: 2; } }
+        @media (min-width: 1024px) { .masonry { column-count: 3; } }
+        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONS ---
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const IconComponent = lucide[name];
+            if (!IconComponent) return null;
+            return <IconComponent size={size} className={className} />;
+        };
+
+        // --- DATA (Mock Data for Frontend) ---
+        const services = [
+            { id: 1, title: "Event Planning & Management", desc: "End-to-end coordination for flawless execution.", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80" },
+            { id: 2, title: "Corporate Events", desc: "Conferences, launches, and team building.", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80" },
+            { id: 3, title: "Professional Photography", desc: "Capturing the perfect moments.", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80" },
+            { id: 4, title: "Cinematic Videography", desc: "Bringing your story to life on screen.", img: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80" }
+        ];
+
+        const portfolio = [
+            { id: 1, title: "Tech Summit 2023", cat: "Conferences", loc: "Nairobi", img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80" },
+            { id: 2, title: "Sarah & James Wedding", cat: "Weddings", loc: "Naivasha", img: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80" },
+            { id: 3, title: "Safaricom Launch", cat: "Corporate", loc: "Nairobi", img: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80" },
+            { id: 4, title: "Blankets & Wine", cat: "Concerts", loc: "Nairobi", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&q=80" }
+        ];
+
+        const packages = [
+            { name: "Essential", price: "KES 50,000*", features: ["Half-day coverage", "1 Photographer", "100 Edited Photos", "Online Gallery"], rec: false },
+            { name: "Professional", price: "KES 120,000*", features: ["Full-day coverage", "2 Photographers", "1 Videographer", "300 Edited Photos", "Highlight Video"], rec: true },
+            { name: "Premium", price: "KES 250,000*", features: ["Multi-day coverage", "Full Crew", "Drone Coverage", "Unlimited Photos", "Full Cinematic Film"], rec: false }
+        ];
+
+        const faqs = [
+            { q: "How do we book your services?", a: "We require a 50% deposit to secure your date. The remaining balance is due 7 days before the event." },
+            { q: "Do you travel outside Nairobi?", a: "Yes, we cover events across Kenya and East Africa. Travel and accommodation are billed separately." },
+            { q: "How long does it take to receive photos?", a: "A sneak peek is provided within 48 hours. The full gallery is delivered within 14-21 working days." }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Navbar = () => {
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [isOpen, setIsOpen] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setIsScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            return (
+                <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-primary py-4 shadow-lg' : 'bg-transparent py-6'}`}>
+                    <div className="container mx-auto px-6 flex justify-between items-center">
+                        {/* Logo Placeholder */}
+                        <a href="#" className="flex items-center gap-2 text-white">
+                            <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center font-bold text-primary">IE</div>
+                            <span className="font-heading font-bold text-xl tracking-wider hidden sm:block">INFLUENZA</span>
+                        </a>
+
+                        {/* Desktop Menu */}
+                        <div className="hidden lg:flex items-center space-x-8 text-white text-sm font-medium">
+                            <a href="#" className="hover:text-accent transition">Home</a>
+                            <a href="#" className="hover:text-accent transition">About Us</a>
+                            <a href="#" className="hover:text-accent transition">Services</a>
+                            <a href="#" className="hover:text-accent transition">Portfolio</a>
+                            <a href="#" className="hover:text-accent transition">Pricing</a>
+                            <a href="#" className="hover:text-accent transition">Insights</a>
+                            <a href="#" className="hover:text-accent transition">Contact</a>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="hidden lg:block">
+                            <a href="#" className="bg-accent text-primary font-bold py-2.5 px-6 rounded hover:bg-white transition duration-300 text-sm">
+                                BOOK AN EVENT
+                            </a>
+                        </div>
+
+                        {/* Mobile Menu Toggle */}
+                        <button className="lg:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
+                            <Icon name={isOpen ? "X" : "Menu"} size={28} />
+                        </button>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    {isOpen && (
+                        <div className="lg:hidden bg-secondary absolute top-full left-0 w-full flex flex-col items-center py-6 space-y-4 shadow-xl">
+                            <a href="#" className="text-white hover:text-accent">Home</a>
+                            <a href="#" className="text-white hover:text-accent">About Us</a>
+                            <a href="#" className="text-white hover:text-accent">Services</a>
+                            <a href="#" className="text-white hover:text-accent">Portfolio</a>
+                            <a href="#" className="text-white hover:text-accent">Contact</a>
+                            <a href="#" className="bg-accent text-primary font-bold py-2 px-8 rounded mt-4">BOOK NOW</a>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Hero = () => (
+            <section className="hero-bg h-screen flex items-center relative">
+                <div className="container mx-auto px-6 pt-20">
+                    <div className="max-w-3xl">
+                        <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-4 block">Events. Experiences. Excellence.</span>
+                        <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6 font-heading">
+                            WE CREATE EXPERIENCES THAT LEAVE A LASTING IMPRESSION.
+                        </h1>
+                        <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl font-light">
+                            From corporate gatherings and conferences to unforgettable celebrations, we bring ideas to life through professional planning, creative production and exceptional event coverage.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <a href="#" className="bg-accent text-primary font-bold text-center py-4 px-8 rounded hover:bg-white transition duration-300">
+                                PLAN YOUR EVENT
+                            </a>
+                            <a href="#" className="border border-white text-white font-bold text-center py-4 px-8 rounded hover:bg-white hover:text-primary transition duration-300 flex items-center justify-center gap-2">
+                                EXPLORE OUR WORK <Icon name="ArrowRight" size={18} />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Stats = () => (
+            <section className="bg-secondary py-16">
+                <div className="container mx-auto px-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        {[
+                            { num: "500+", label: "Events Delivered" },
+                            { num: "150+", label: "Corporate Clients" },
+                            { num: "10+", label: "Years Experience" },
+                            { num: "1000+", label: "Projects Completed" }
+                        ].map((stat, i) => (
+                            <div key={i} className="p-4 border-r border-gray-700 last:border-0">
+                                <h3 className="text-4xl font-bold text-accent mb-2 font-heading">{stat.num}</h3>
+                                <p className="text-gray-400 text-sm uppercase tracking-wider">{stat.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const About = () => (
+            <section className="py-24 bg-white">
+                <div className="container mx-auto px-6">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="w-full lg:w-1/2 relative">
+                            <img src="https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80" alt="About Us" className="rounded-lg shadow-2xl object-cover h-[500px] w-full" />
+                            <div className="absolute -bottom-6 -right-6 bg-accent p-6 rounded-lg hidden md:block">
+                                <p className="text-primary font-bold text-xl font-heading">10+ Years</p>
+                                <p className="text-primary text-sm">of Excellence</p>
+                            </div>
+                        </div>
+                        <div className="w-full lg:w-1/2">
+                            <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-2 block">Who We Are</span>
+                            <h2 className="text-4xl font-bold text-primary mb-6 font-heading leading-tight">WE TURN IDEAS INTO EXTRAORDINARY EXPERIENCES.</h2>
+                            <p className="text-textmuted mb-6 leading-relaxed">
+                                Influenza Events Kenya is a premier event management and creative agency. We specialize in crafting bespoke experiences that resonate with your audience. From meticulous planning to flawless execution, our team handles every detail with precision.
+                            </p>
+                            <div className="grid grid-cols-3 gap-4 mb-8">
+                                {['Creativity', 'Professionalism', 'Excellence'].map((val, i) => (
+                                    <div key={i} className="flex flex-col items-center md:items-start">
+                                        <Icon name="CheckCircle" size={24} className="text-accent mb-2" />
+                                        <span className="font-semibold text-primary">{val}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <a href="#" className="inline-block border-2 border-primary text-primary font-bold py-3 px-8 rounded hover:bg-primary hover:text-white transition duration-300">
+                                DISCOVER OUR STORY
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Services = () => (
+            <section className="py-24 bg-lightbg">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-2 block">Our Services</span>
+                        <h2 className="text-4xl font-bold text-primary font-heading max-w-2xl mx-auto">EVERYTHING YOU NEED TO CREATE AN EXCEPTIONAL EVENT.</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {services.map((service) => (
+                            <div key={service.id} className="bg-white rounded-lg overflow-hidden shadow-md group hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
+                                <div className="relative h-48 overflow-hidden">
+                                    <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                                    <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/0 transition"></div>
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-xl font-bold text-primary mb-3 font-heading leading-tight">{service.title}</h3>
+                                    <p className="text-textmuted text-sm mb-6">{service.desc}</p>
+                                    <a href="#" className="text-accent font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                                        Explore Service <Icon name="ArrowRight" size={16} />
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Portfolio = () => {
+            const [filter, setFilter] = useState("All");
+            const categories = ["All", "Corporate", "Weddings", "Conferences", "Concerts"];
+            
+            const filtered = filter === "All" ? portfolio : portfolio.filter(p => p.cat === filter);
+
+            return (
+                <section className="py-24 bg-white">
+                    <div className="container mx-auto px-6">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+                            <div>
+                                <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-2 block">Featured Portfolio</span>
+                                <h2 className="text-4xl font-bold text-primary font-heading">OUR WORK SPEAKS FOR ITSELF.</h2>
+                            </div>
+                            <div className="flex gap-2 mt-6 md:mt-0 flex-wrap">
+                                {categories.map(cat => (
+                                    <button 
+                                        key={cat} 
+                                        onClick={() => setFilter(cat)}
+                                        className={`px-4 py-2 text-sm font-semibold rounded transition ${filter === cat ? 'bg-primary text-white' : 'bg-lightbg text-primary hover:bg-gray-200'}`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="masonry">
+                            {filtered.map(project => (
+                                <div key={project.id} className="masonry-item relative group overflow-hidden rounded-lg cursor-pointer">
+                                    <img src={project.img} alt={project.title} className="w-full h-auto object-cover group-hover:scale-105 transition duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-6">
+                                        <span className="text-accent text-sm font-bold mb-1">{project.cat}</span>
+                                        <h3 className="text-white text-2xl font-bold font-heading">{project.title}</h3>
+                                        <p className="text-gray-300 text-sm">{project.loc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="text-center mt-12">
+                            <a href="#" className="inline-block bg-primary text-white font-bold py-3 px-8 rounded hover:bg-accent transition duration-300">
+                                VIEW ALL PROJECTS
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Pricing = () => (
+            <section className="py-24 bg-lightbg">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-2 block">Packages & Pricing</span>
+                        <h2 className="text-4xl font-bold text-primary font-heading">TRANSPARENT PRICING FOR PREMIUM EVENTS.</h2>
+                        <p className="text-textmuted mt-4 max-w-xl mx-auto">*Prices are placeholders for demonstration purposes. Please request a custom quotation.</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                        {packages.map((pkg, i) => (
+                            <div key={i} className={`bg-white rounded-xl shadow-lg p-8 relative border-t-4 ${pkg.rec ? 'border-accent transform md:-translate-y-4' : 'border-transparent'}`}>
+                                {pkg.rec && <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-accent text-primary text-xs font-bold py-1 px-4 rounded-full uppercase tracking-wider">Recommended</span>}
+                                <h3 className="text-2xl font-bold text-primary mb-2 font-heading">{pkg.name}</h3>
+                                <p className="text-3xl font-bold text-accent mb-6">{pkg.price}</p>
+                                <ul className="space-y-4 mb-8">
+                                    {pkg.features.map((feat, j) => (
+                                        <li key={j} className="flex items-start gap-3 text-textmuted text-sm">
+                                            <Icon name="Check" size={18} className="text-accent flex-shrink-0 mt-0.5" />
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button className={`w-full py-3 rounded font-bold transition ${pkg.rec ? 'bg-accent text-primary hover:bg-primary hover:text-white' : 'bg-primary text-white hover:bg-accent'}`}>
+                                    SELECT PACKAGE
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const FAQ = () => {
+            const [open, setOpen] = useState(null);
+            return (
+                <section className="py-24 bg-white">
+                    <div className="container mx-auto px-6 max-w-3xl">
+                        <div className="text-center mb-16">
+                            <span className="text-accent font-bold tracking-[0.2em] text-sm uppercase mb-2 block">FAQ</span>
+                            <h2 className="text-4xl font-bold text-primary font-heading">FREQUENTLY ASKED QUESTIONS</h2>
+                        </div>
+                        <div className="space-y-4">
+                            {faqs.map((faq, i) => (
+                                <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <button 
+                                        onClick={() => setOpen(open === i ? null : i)}
+                                        className="w-full flex justify-between items-center p-6 bg-lightbg hover:bg-gray-100 transition text-left"
+                                    >
+                                        <span className="font-bold text-primary font-heading">{faq.q}</span>
+                                        <Icon name={open === i ? "Minus" : "Plus"} size={20} className="text-accent" />
+                                    </button>
+                                    {open === i && (
+                                        <div className="p-6 bg-white text-textmuted text-sm leading-relaxed border-t border-gray-100">
+                                            {faq.a}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="bg-primary pt-16 pb-8 border-t border-secondary">
+                <div className="container mx-auto px-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                        <div>
+                            <div className="flex items-center gap-2 text-white mb-6">
+                                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center font-bold text-primary text-sm">IE</div>
+                                <span className="font-heading font-bold text-lg tracking-wider">INFLUENZA</span>
+                            </div>
+                            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                                Crafting extraordinary events and capturing timeless memories across Kenya.
+                            </p>
+                            <div className="flex gap-4">
+                                {['Instagram', 'Twitter', 'Facebook', 'Linkedin'].map(icon => (
+                                    <a key={icon} href="#" className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-gray-400 hover:text-accent hover:bg-primary transition">
+                                        <Icon name={icon} size={16} />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 className="text-white font-bold mb-6 font-heading">Quick Links</h4>
+                            <ul className="space-y-3 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-accent transition">About Us</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Our Services</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Portfolio</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Packages & Pricing</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Contact</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="text-white font-bold mb-6 font-heading">Our Services</h4>
+                            <ul className="space-y-3 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-accent transition">Event Planning</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Corporate Events</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Photography</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Videography</a></li>
+                                <li><a href="#" className="hover:text-accent transition">Equipment Hire</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="text-white font-bold mb-6 font-heading">Contact Info</h4>
+                            <ul className="space-y-4 text-sm text-gray-400">
+                                <li className="flex items-start gap-3">
+                                    <Icon name="MapPin" size={18} className="text-accent flex-shrink-0" />
+                                    <span>Nairobi, Kenya<br/>Westlands Area</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <Icon name="Phone" size={18} className="text-accent flex-shrink-0" />
+                                    <span>+254 700 000 000</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <Icon name="Mail" size={18} className="text-accent flex-shrink-0" />
+                                    <span>hello@influenzaevents.co.ke</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="border-t border-secondary pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+                        <p>&copy; {new Date().getFullYear()} Influenza Events Kenya. All rights reserved.</p>
+                        <div className="flex gap-4 mt-4 md:mt-0">
+                            <a href="#" className="hover:text-white">Privacy Policy</a>
+                            <a href="#" className="hover:text-white">Terms & Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        const FloatingElements = () => (
+            <>
+                {/* WhatsApp Button */}
+                <a href="https://wa.me/254700000000?text=Hello%20Influenza%20Events,%20I%20would%20like%20to%20inquire%20about%20your%20services." 
+                   target="_blank" 
+                   className="fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:scale-110 transition z-50 flex items-center justify-center">
+                    <Icon name="MessageCircle" size={24} />
+                </a>
+
+                {/* AI Chat Assistant Mock */}
+                <button className="fixed bottom-24 right-6 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-accent transition z-50 flex items-center justify-center border border-secondary">
+                    <Icon name="Bot" size={24} />
+                </button>
+            </>
+        );
+
+        const App = () => {
+            return (
+                <div className="relative">
+                    <Navbar />
+                    <Hero />
+                    <Stats />
+                    <About />
+                    <Services />
+                    <Portfolio />
+                    <Pricing />
+                    <FAQ />
+                    <Footer />
+                    <FloatingElements />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
